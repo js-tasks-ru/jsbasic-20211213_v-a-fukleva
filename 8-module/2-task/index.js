@@ -28,7 +28,6 @@ export default class ProductGrid {
     this.gridWrap.innerHTML = '';
 
     const filteredProducts = this.products.filter(product => this.filterProducts(product, filters))
-
     filteredProducts.forEach(product => {
       const card = new ProductCard(product);
       this.gridWrap.append(card.elem);
@@ -40,13 +39,22 @@ export default class ProductGrid {
 
     if(filters.hasOwnProperty('noNuts')) {
       this.filters.noNuts = filters.noNuts;
+    } else if(!this.filters.hasOwnProperty('noNuts')){
+      this.filters.noNuts = false;
     }
+
     if(filters.hasOwnProperty('vegeterianOnly')) {
       this.filters.vegeterianOnly = filters.vegeterianOnly;
+    } else if(!this.filters.hasOwnProperty('noNuts')){
+      this.filters.vegeterianOnly = false;
     }
+
     if(filters.hasOwnProperty('maxSpiciness')) {
       this.filters.maxSpiciness = filters.maxSpiciness;
+    } else if(!this.filters.hasOwnProperty('maxSpiciness')){
+      this.filters.maxSpiciness = 4
     }
+
 
     const filterSuccess = this.checkFilters(product);
     const categoryMatch = this.categoryFilter(product, filters)
@@ -57,25 +65,27 @@ export default class ProductGrid {
 
   checkFilters(product){
 
-    const activeFilters = {};
+    const activeFilters = {
+      spicy : true,
+      vegan : true,
+      nuts : true,
+    };
 
-    let filterSuccess = true;
-
-    if(this.filters.hasOwnProperty('noNuts')) {
-      activeFilters.nuts = product.nuts !== this.filters.noNuts;
-    }
-    if(this.filters.hasOwnProperty('vegeterianOnly')) {
-      activeFilters.vegan = product.vegeterian === this.filters.vegeterianOnly;
-    }
     if(this.filters.hasOwnProperty('maxSpiciness')) {
       activeFilters.spicy = product.spiciness <= this.filters.maxSpiciness;
     }
 
-    for(let key in activeFilters) {
-      activeFilters[key] ? filterSuccess = true : filterSuccess = false
+    if(this.filters.hasOwnProperty('vegeterianOnly') && this.filters.vegeterianOnly === true) {
+      activeFilters.vegan = product.vegeterian === this.filters.vegeterianOnly;
     }
 
-    return filterSuccess
+    if(this.filters.hasOwnProperty('noNuts') && this.filters.noNuts === true) {
+        activeFilters.nuts = product.nuts !== this.filters.noNuts;
+    }
+
+    console.log(this.filters, activeFilters)
+
+    return activeFilters.spicy && activeFilters.vegan && activeFilters.nuts
   }
 
   categoryFilter(product, filters){
